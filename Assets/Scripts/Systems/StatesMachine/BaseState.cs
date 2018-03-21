@@ -35,7 +35,6 @@ public abstract class BaseState
         {
             hasStarted = true;
             yield return null;
-            stateManager.StartState(this);
         }
     }
     public virtual IEnumerator ExitState(BaseState nextState)
@@ -43,42 +42,31 @@ public abstract class BaseState
         stopState = true;
         yield return null;
     }
-    public void StopState()
-    {
-        stopState = false;
-    }
-
-    //State Loops
-    public virtual IEnumerator Update()
-    {
-        while (!stopState)
-        {
-            if (stateManager.IsPaused)
-                yield return stateManager.StartCoroutine(UpdatePaused());
-            else if (inTransition)
-                yield return stateManager.StartCoroutine(UpdateTransition());
-            else
-                yield return stateManager.StartCoroutine(UpdateState());
-
-            elapsedTime += Time.deltaTime;
-        }
-    }
-
-    public virtual IEnumerator FixedUpdate()
-    {
-        while (!stopState)
-        {
-            if (!stateManager.IsPaused)
-                UpdatePhysics();
-            yield return new WaitForFixedUpdate();
-        }
-    }
 
     //State Updates
+    public virtual void Update()
+    {
+        if (stateManager.IsPaused)
+            UpdatePaused();
+
+        else if (inTransition)
+            UpdateTransition();
+
+        else UpdateState();
+
+        elapsedTime += Time.deltaTime;
+    }
+
+    public virtual void FixedUpdate()
+    {
+        if (!stateManager.IsPaused)
+            UpdatePhysics();
+    }
+    
     protected abstract void UpdatePhysics();
-    protected abstract IEnumerator UpdateState();
-    protected abstract IEnumerator UpdatePaused();
-    protected abstract IEnumerator UpdateTransition();
+    protected abstract void UpdateState();
+    protected abstract void UpdatePaused();
+    protected abstract void UpdateTransition();
 
     //Trigger Functions
     public abstract void OnTriggerEnter(Collider collider);

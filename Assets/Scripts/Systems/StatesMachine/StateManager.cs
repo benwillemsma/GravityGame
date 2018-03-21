@@ -6,7 +6,6 @@ public class StateManager : MonoBehaviour
 {
     public BaseState State;
     private bool m_isPaused;
-
     public bool IsPaused
     {
         get {return m_isPaused; }
@@ -21,15 +20,22 @@ public class StateManager : MonoBehaviour
         //Initialize trigger Delegates
         SetTriggers(State);
         SetCollisions(State);
+
+        State.EnterState(null);
+        CurrentState = State.ToString();
+    }
+
+    protected void Update()
+    {
+        State.Update();
+    }
+
+    protected void FixedUpdate()
+    {
+        State.FixedUpdate();
     }
 
     //State Functions
-    public void StartState(BaseState state)
-    {
-        StartCoroutine(state.FixedUpdate());
-        StartCoroutine(state.Update());
-        CurrentState = State.ToString();
-    }
     public void ChangeState(BaseState newState)
     {
         StartCoroutine(HandleStateTransition(newState));

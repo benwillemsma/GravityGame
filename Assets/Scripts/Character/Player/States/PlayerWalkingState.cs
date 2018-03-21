@@ -9,6 +9,8 @@ public class PlayerWalkingState : PlayerState<Player>
 
     public override IEnumerator EnterState(BaseState prevState)
     {
+        gravityDirection = -rb.transform.up;
+        gravityStrength = 9.8f;
         yield return base.EnterState(prevState);
     }
     public override IEnumerator ExitState(BaseState nextState)
@@ -17,23 +19,12 @@ public class PlayerWalkingState : PlayerState<Player>
     }
 
     //State Updates
-    protected override IEnumerator UpdateState()
+    protected override void UpdateState()
     {
         UpdateMovement();
         UpdateAnimator();
 
-        if (Input.GetButtonDown("Jump")) Jump();
-        else if (!grounded && Input.GetButtonDown("GravChange")) ChangeGravity();
-
-        yield return null;
-    }
-    protected override IEnumerator UpdatePaused()
-    {
-        yield return null;
-    }
-    protected override IEnumerator UpdateTransition()
-    {
-        yield return null;
+        if (!grounded && Input.GetButtonDown("GravChange")) ChangeGravity();
     }
 
     protected override void UpdateMovement()
@@ -48,7 +39,7 @@ public class PlayerWalkingState : PlayerState<Player>
         rb.transform.rotation = Quaternion.Slerp(rb.transform.rotation, desiredRotation, Time.deltaTime * 8);
         rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * 20, Space.World);
     }
-
+    
     protected override void UpdateAnimator()
     {
 
@@ -56,8 +47,12 @@ public class PlayerWalkingState : PlayerState<Player>
     protected override void UpdatePhysics()
     {
         GroundCheck();
-        if (grounded) rb.velocity = (rb.transform.rotation * (moveDirection.normalized * data.MaxSpeed)) + Vector3.Project(rb.velocity, gravityDirection);
-        rb.AddForce(gravityDirection * gravityStrength * rb.mass);
+        if (grounded)
+        {
+            rb.velocity = (rb.transform.rotation * (moveDirection.normalized * data.MaxSpeed));// + Vector3.Project(rb.velocity, gravityDirection);
+            if (Input.GetButtonDown("Jump")) Jump();
+        }
+        rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 10 : 1));
     }
 
     //Trigger Functions
@@ -72,7 +67,9 @@ public class PlayerWalkingState : PlayerState<Player>
 
     private void Jump()
     {
-        rb.AddForce(rb.transform.up * 10 * rb.mass, ForceMode.Impulse);
+        rb.velocity = Vector3.ProjectOnPlane(rb.velocity, rb.transform.up);
+        rb.velocity += rb.transform.up * data.JumpForce;
+        grounded = false;
     }
 
     private void ChangeGravity()

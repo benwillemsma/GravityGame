@@ -6,9 +6,9 @@ public abstract class PlayerState<Data> : CharacterState<Data> where Data : Play
 {
     #region PlayerState Variables
 
-    protected static Vector3 gravityDirection = Vector3.down;
-    protected static float gravityStrength = 9.8f;
-    protected static bool grounded = true;
+    protected Vector3 gravityDirection;
+    protected float gravityStrength;
+    protected bool grounded;
 
     #endregion
 
@@ -20,10 +20,9 @@ public abstract class PlayerState<Data> : CharacterState<Data> where Data : Play
         Vector3 direction = -rb.transform.up;
 
         RaycastHit hit;
-        Debug.DrawRay(start, direction * 1.5f, Color.red, 0.1f);
         if (Physics.Raycast(start, direction, out hit, 1.5f))
         {
-            grounded = true;
+            if (hit.distance < 1f) grounded = true;
             gravityDirection = -hit.normal;
         }
         else grounded = false;

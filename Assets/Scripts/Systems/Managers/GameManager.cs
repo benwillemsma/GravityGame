@@ -96,9 +96,9 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        Debug.Log(levelSpawn);
         Transform spawnTransfrom = levelSpawn.GetNextSpawn();
         Instantiate(playerPrefab, spawnTransfrom.position, spawnTransfrom.rotation).GetComponent<Player>();
+        Debug.Log("Spawned Player");
     }
 
     public void Quit()
