@@ -36,8 +36,8 @@ public class PlayerWalkingState : PlayerState<Player>
     {
         Vector3 newForward = Vector3.ProjectOnPlane(rb.transform.forward, -gravityDirection);
         Quaternion desiredRotation = Quaternion.LookRotation(newForward, -gravityDirection);
-        rb.transform.rotation = Quaternion.Slerp(rb.transform.rotation, desiredRotation, Time.deltaTime * 8);
-        rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * 20, Space.World);
+        rb.transform.rotation = Quaternion.Slerp(rb.transform.rotation, desiredRotation, Time.deltaTime * 6);
+        rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * 50, Space.World);
     }
     
     protected override void UpdateAnimator()
@@ -49,10 +49,13 @@ public class PlayerWalkingState : PlayerState<Player>
         GroundCheck();
         if (grounded)
         {
-            rb.velocity = (rb.transform.rotation * (moveDirection.normalized * data.MaxSpeed));// + Vector3.Project(rb.velocity, gravityDirection);
+            //rb.velocity = rb.transform.rotation * (moveDirection.normalized * data.MaxSpeed);
+            rb.velocity = rb.transform.rotation * moveDirection;
+            rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection).normalized * data.MaxSpeed;
+            Debug.DrawRay(rb.transform.position, rb.velocity, Color.red);
             if (Input.GetButtonDown("Jump")) Jump();
         }
-        rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 10 : 1));
+        rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
     }
 
     //Trigger Functions

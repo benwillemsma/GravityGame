@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public class FirstPersonCamera : MonoBehaviour
 {
-    public static CameraController Instance;
+    public static FirstPersonCamera Instance;
     public static Transform cameraRotator;
 
     [HideInInspector]
@@ -15,14 +15,6 @@ public class CameraController : MonoBehaviour
 
     void Awake ()
     {
-        if (!Instance)
-            Instance = this;
-        else
-        {
-            DestroyImmediate(gameObject);
-            return;
-        }
-
         player = GameManager.player.transform;
 
         mainCamera = GetComponent<Camera>();
@@ -41,8 +33,7 @@ public class CameraController : MonoBehaviour
             (Vector3.ProjectOnPlane(cameraRotator.forward, player.transform.right)
             , Vector3.ProjectOnPlane(player.transform.up, player.transform.right));
         cameraRotator.Rotate(Input.GetAxis("Mouse Y") * (inverted ? 1 : -1) * Time.deltaTime * 20, 0, 0);
-        cameraRotator.Rotate(player.up, Input.GetAxis("Mouse X") * Time.deltaTime * 20, Space.World);
-        cameraRotator.position = transform.transform.position;
+        cameraRotator.position = transform.position;
 
         // Update Real rotation
         transform.rotation = cameraRotator.rotation;

@@ -16,7 +16,7 @@ public abstract class PlayerState<Data> : CharacterState<Data> where Data : Play
 
     protected void GroundCheck()
     {
-        Vector3 start = rb.transform.position + rb.transform.up;
+        Vector3 start = rb.transform.position + rb.transform.up + rb.transform.forward * 0.2f;
         Vector3 direction = -rb.transform.up;
 
         RaycastHit hit;

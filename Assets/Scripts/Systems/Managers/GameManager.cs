@@ -201,7 +201,6 @@ public class GameManager : MonoBehaviour
             //Scene is LevelScene
             string currentLevel = scene.name;
             PlayerPrefs.SetString("ContinueScene", currentLevel);
-            SceneManager.SetActiveScene(SceneManager.GetSceneByName("PlayScene"));
         }
     }
 
