@@ -22,9 +22,14 @@ public abstract class PlayerState<Data> : CharacterState<Data> where Data : Play
         RaycastHit hit;
         if (Physics.Raycast(start, direction, out hit, 1.5f))
         {
-            if (hit.distance < 1f) grounded = true;
+            if (hit.distance < 1.1f) grounded = true;
             gravityDirection = -hit.normal;
+            anim.SetBool("Grounded", true);
         }
-        else grounded = false;
+        else
+        {
+            anim.SetBool("Grounded", false);
+            grounded = false;
+        }
     }
 }

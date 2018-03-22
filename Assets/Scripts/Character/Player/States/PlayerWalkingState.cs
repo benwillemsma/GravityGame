@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerWalkingState : PlayerState<Player>
 {
     public PlayerWalkingState(Player player) : base(player) { }
-    Vector3 moveDirection;
+    private Vector3 moveDirection;
+    private bool Crouched;
+    private bool Sprinting;
 
     public override IEnumerator EnterState(BaseState prevState)
     {
@@ -29,7 +31,26 @@ public class PlayerWalkingState : PlayerState<Player>
 
     protected override void UpdateMovement()
     {
-        moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        if (Input.GetButtonDown("Crouch"))
+        {
+            if (data.toggleCrouch)
+                Crouched = !Crouched;
+            else
+            {
+                Crouched = true;
+                Sprinting = false;
+            }
+        }
+        else if (Input.GetButtonUp("Crouch") && !data.toggleCrouch)
+            Crouched = false;
+
+        Sprinting = Input.GetButton("Sprint");
+        if (Sprinting) Crouched = false;
+
+        moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
+        if (Crouched) moveDirection /= 2;
+        else if (Sprinting) moveDirection *= 1.5f;
+
         UpdateRotation();
     }
     private void UpdateRotation()
@@ -42,19 +63,21 @@ public class PlayerWalkingState : PlayerState<Player>
     
     protected override void UpdateAnimator()
     {
-
+        anim.SetBool("Crouching", Crouched);
+        anim.SetFloat("MoveX", moveDirection.x);
+        anim.SetFloat("MoveY", moveDirection.z);
+        anim.SetFloat("Speed", moveDirection.magnitude);
     }
     protected override void UpdatePhysics()
     {
         GroundCheck();
         if (grounded)
         {
-            //rb.velocity = rb.transform.rotation * (moveDirection.normalized * data.MaxSpeed);
             rb.velocity = rb.transform.rotation * moveDirection;
-            rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection).normalized * data.MaxSpeed;
-            Debug.DrawRay(rb.transform.position, rb.velocity, Color.red);
+            rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection) * data.RunSpeed;
             if (Input.GetButtonDown("Jump")) Jump();
         }
+        else anim.ResetTrigger("Jump");
         rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
     }
 
@@ -73,6 +96,7 @@ public class PlayerWalkingState : PlayerState<Player>
         rb.velocity = Vector3.ProjectOnPlane(rb.velocity, rb.transform.up);
         rb.velocity += rb.transform.up * data.JumpForce;
         grounded = false;
+        anim.SetTrigger("Jump");
     }
 
     private void ChangeGravity()
