@@ -20306,15 +20306,15 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4511117424818862, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.955
       objectReference: {fileID: 0}
     - target: {fileID: 4511117424818862, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.226
       objectReference: {fileID: 0}
     - target: {fileID: 4511117424818862, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.807
       objectReference: {fileID: 0}
     - target: {fileID: 4511117424818862, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
       propertyPath: m_LocalRotation.x
@@ -20366,6 +20366,10 @@ Prefab:
         type: 2}
       propertyPath: terrainMask.m_Bits
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4800077196420534, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
