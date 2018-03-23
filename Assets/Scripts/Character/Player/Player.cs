@@ -6,10 +6,21 @@ using UnityEngine.SceneManagement;
 public class Player : CharacterData
 {
     #region Public Variables
-    [Space(10)]
-    public float RunSpeed;
-    public float JumpForce;
+    [Header("Movement"), Space(10)]
+    [Range(0, 10)]
+    public float RunSpeed = 8;
+    [Range(4, 10)]
+    public float JumpForce = 6;
+    [Range(0, 10)]
+    public float AirControl= 5;
     public bool toggleCrouch;
+
+    [Header("Camera"), Space(10)]
+    [Range(0, 50)]
+    public float CameraSensitivity = 30;
+    [Range(0, 2)]
+    public float CameraOffset = 0.75f;
+    public bool InvertedCamera;
 
     #endregion
 

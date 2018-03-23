@@ -1538,7 +1538,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4511117424818862}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4321242319431126
 Transform:
@@ -1755,8 +1755,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4800077196420534}
   - {fileID: 4320204917674016}
+  - {fileID: 4800077196420534}
   - {fileID: 4444171400313186}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -2064,7 +2064,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4511117424818862}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4811091137410964
 Transform:
@@ -2465,7 +2465,11 @@ MonoBehaviour:
   m_deathDelay: 3
   RunSpeed: 8
   JumpForce: 6
+  AirControl: 5
   toggleCrouch: 0
+  CameraSensitivity: 30
+  CameraOffset: 0.75
+  InvertedCamera: 0
 --- !u!114 &114692016250279644
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2477,13 +2481,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3471e1b30d2147541b262781473f89de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
-  inverted: 0
   terrainMask:
     serializedVersion: 2
     m_Bits: 4294967295
   pivotPoint: {fileID: 4800077196420534}
-  rightOffset: 0.5
 --- !u!124 &124197653556353950
 Behaviour:
   m_ObjectHideFlags: 1

@@ -58,7 +58,7 @@ public class PlayerWalkingState : PlayerState<Player>
         Vector3 newForward = Vector3.ProjectOnPlane(rb.transform.forward, -gravityDirection);
         Quaternion desiredRotation = Quaternion.LookRotation(newForward, -gravityDirection);
         rb.transform.rotation = Quaternion.Slerp(rb.transform.rotation, desiredRotation, Time.deltaTime * 6);
-        rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * 50, Space.World);
+        rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * data.CameraSensitivity, Space.World);
     }
     
     protected override void UpdateAnimator()
@@ -77,7 +77,11 @@ public class PlayerWalkingState : PlayerState<Player>
             rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection) * data.RunSpeed;
             if (Input.GetButtonDown("Jump")) Jump();
         }
-        else anim.ResetTrigger("Jump");
+        else
+        {
+            anim.ResetTrigger("Jump");
+            rb.position += rb.transform.rotation * Vector3.ProjectOnPlane(moveDirection, gravityDirection).normalized * 0.01f * data.AirControl;
+        }
         rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
     }
 
