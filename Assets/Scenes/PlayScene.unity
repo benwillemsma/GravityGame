@@ -20853,6 +20853,21 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114523609284213138, guid: 77388d45259ee9041ac77b55a3af64e9,
+        type: 2}
+      propertyPath: CameraSensitivity
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 114523609284213138, guid: 77388d45259ee9041ac77b55a3af64e9,
+        type: 2}
+      propertyPath: AirControl
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114523609284213138, guid: 77388d45259ee9041ac77b55a3af64e9,
+        type: 2}
+      propertyPath: RunSpeed
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 77388d45259ee9041ac77b55a3af64e9, type: 2}
   m_IsPrefabParent: 0
