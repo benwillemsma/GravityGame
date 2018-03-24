@@ -6,7 +6,6 @@ public class ThirdPersonCamera : MonoBehaviour
 {
     public static ThirdPersonCamera Instance;
     public static Transform cameraRotator;
-    public static Camera mainCamera;
     
     public LayerMask terrainMask;
     public Transform pivotPoint;
@@ -22,7 +21,7 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         player = GameManager.player;
 
-        mainCamera = GetComponent<Camera>();
+        Instance = this;
         if (!cameraRotator)
         {
             cameraRotator = new GameObject("CameraRotator").transform;
@@ -42,8 +41,8 @@ public class ThirdPersonCamera : MonoBehaviour
         cameraRotator.Rotate(Input.GetAxis("Mouse Y") * (player.InvertedCamera ? 1 : -1) * Time.deltaTime * player.CameraSensitivity, 0, 0);
         cameraRotator.rotation = Quaternion.LookRotation
             (
-                /*Forward Vector*/ ClampCameraForward(Vector3.ProjectOnPlane(cameraRotator.forward, player.transform.right)),
-                /*  Up Vector   */ Vector3.ProjectOnPlane(player.transform.up, player.transform.right)
+                ClampCameraForward(Vector3.ProjectOnPlane(cameraRotator.forward, player.transform.right)),
+                Vector3.ProjectOnPlane(player.transform.up, player.transform.right)
             );
 
         // Update positon

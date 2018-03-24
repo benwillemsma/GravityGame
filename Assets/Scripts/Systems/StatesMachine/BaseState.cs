@@ -62,7 +62,7 @@ public abstract class BaseState
         if (!stateManager.IsPaused)
             UpdatePhysics();
     }
-    
+
     protected abstract void UpdatePhysics();
     protected abstract void UpdateState();
     protected abstract void UpdatePaused();

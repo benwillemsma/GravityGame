@@ -161,6 +161,6 @@ public abstract class CharacterData : MonoBehaviour
         UpdateHealthStatus();
     }
 
-    protected abstract void OnSceneLoaded(Scene scene, LoadSceneMode mode);
+    protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode) { }
     #endregion
 }

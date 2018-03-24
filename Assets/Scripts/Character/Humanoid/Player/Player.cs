@@ -3,10 +3,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Player : CharacterData
+public class Player : HumanoidData
 {
     #region Public Variables
-    [Header("Movement"), Space(10)]
+    [Header("Movement")]
     [Range(0, 10)]
     public float RunSpeed = 8;
     [Range(4, 10)]
@@ -15,12 +15,16 @@ public class Player : CharacterData
     public float AirControl= 5;
     public bool toggleCrouch;
 
-    [Header("Camera"), Space(10)]
+    [Header("Camera")]
     [Range(0, 50)]
     public float CameraSensitivity = 30;
     [Range(0, 2)]
     public float CameraOffset = 0.75f;
     public bool InvertedCamera;
+
+    [Header("Gun References (Don't Touch)")]
+    public Gun EquipedGun;
+    public Transform GunPivot;
 
     #endregion
 
