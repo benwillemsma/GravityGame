@@ -14,6 +14,7 @@ public class IKController : MonoBehaviour
 
     protected Vector3 _lookAtPosition;
     protected float _headWeight = 0;
+    protected float _lookWeight = 0;
     protected float _headTurnSpeed = 1;
 
     protected Vector3 _RightElbow;
@@ -50,8 +51,8 @@ public class IKController : MonoBehaviour
         _LeftElbow = transform.position + transform.up - transform.right * 5.0f;
         _RightKnee = transform.position + transform.up * 5f + transform.forward * 2f + transform.right * 2f;
         _LeftKnee = transform.position + transform.up * 5f + transform.forward * 2f - transform.right * 2f;
-            
-        anim.SetLookAtWeight(_headWeight, 1f, 1.0f, 1.0f, 1.0f);
+
+        anim.SetLookAtWeight(_lookWeight, _headWeight / 2, _headWeight, 0, 1);
         anim.SetLookAtPosition(_lookAtPosition);
 
         //  --Arm IK--
@@ -207,7 +208,13 @@ public class IKController : MonoBehaviour
     }
     public float HeadWeight
     {
-        set { _headWeight = value; }
         get { return _headWeight; }
+        set { _headWeight = value; }
+    }
+    public float LookWeight
+    {
+        
+        get { return _lookWeight; }
+        set { _lookWeight = value; }
     }
 }

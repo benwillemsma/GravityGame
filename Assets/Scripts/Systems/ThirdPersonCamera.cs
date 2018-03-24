@@ -14,7 +14,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private float aimOffset;
 
     private Player player;
-    [Range(1,3)]
+    private float desiredZoom = 2;
     private float zoom = 2;
 
     void Awake ()
@@ -46,8 +46,14 @@ public class ThirdPersonCamera : MonoBehaviour
             );
 
         // Update positon
-        zoom -= Input.GetAxis("Mouse ScrollWheel");
-        zoom = Mathf.Clamp(zoom, 1, 3);
+        if (Input.GetButton("Aiming"))
+            zoom = Mathf.Lerp(zoom, 1, Time.deltaTime * 6);
+        else
+        {
+            desiredZoom -= Input.GetAxis("Mouse ScrollWheel");
+            desiredZoom = Mathf.Clamp(desiredZoom, 1, 3);
+            zoom = Mathf.Lerp(zoom, desiredZoom, Time.deltaTime * 6);
+        }
 
         if (Input.GetKeyDown(KeyCode.Q)) player.CameraOffset = -player.CameraOffset;
         aimOffset = Mathf.Lerp(aimOffset, player.CameraOffset, Time.deltaTime * 3);

@@ -56,6 +56,12 @@ public class Player : HumanoidData
             StopAllCoroutines();
             DestroyImmediate(gameObject);
         }
+
+        if (EquipedGun)
+        {
+            EquipedGun.transform.parent = Anim.GetBoneTransform(HumanBodyBones.RightHand);
+            EquipedGun.transform.localPosition = Vector3.zero;
+        }
     }
 
     private void Start ()

@@ -54,7 +54,8 @@ public class PlayerWalkingState : PlayerState<Player>
 
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         if (moveDirection.magnitude > 1) moveDirection = moveDirection.normalized;
-        if (Crouched || Aiming) moveDirection /= 2;
+        if (Aiming) moveDirection /= 1.5f;
+        else if (Crouched) moveDirection /= 2;
         else if (Sprinting) moveDirection *= 1.5f;
 
         UpdateRotation();
@@ -80,22 +81,13 @@ public class PlayerWalkingState : PlayerState<Player>
     {
         if (data.EquipedGun)
         {
-            if (Aiming)
-            {
-                IK.HeadWeight = Mathf.Lerp(IK.HeadWeight, 1f, Time.deltaTime * 10);
-                IK.RightHand.weight = IK.HeadWeight;
+            if (Aiming) IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 1f, Time.deltaTime * 10); 
+            else IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 0, Time.deltaTime * 15);
+            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
+            IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
 
-                IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
-                IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
-            }
-            else
-            {
-                IK.HeadWeight = Mathf.Lerp(IK.HeadWeight, 0, Time.deltaTime * 15);
-                IK.RightHand.weight = IK.HeadWeight;
-
-                IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
-                IK.RightHand.rotation = Quaternion.LookRotation(ThirdPersonCamera.Instance.transform.forward, ThirdPersonCamera.Instance.transform.right);
-            }
+            IK.LookWeight = IK.RightHand.weight;
+            IK.HeadWeight = IK.RightHand.weight / 2;
 
             if (data.EquipedGun.SecondHand)
             {
