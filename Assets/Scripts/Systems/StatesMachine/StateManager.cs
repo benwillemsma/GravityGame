@@ -43,9 +43,9 @@ public class StateManager : MonoBehaviour
     }
     protected IEnumerator HandleStateTransition(BaseState newState)
     {
-        newState.InTransition = true;
+        State.InTransition = true;
         yield return StartCoroutine(State.ExitState(newState));
-        newState.InTransition = false;
+        State.InTransition = false;
 
         RemoveTriggers(State);
         RemoveCollisions(State);
