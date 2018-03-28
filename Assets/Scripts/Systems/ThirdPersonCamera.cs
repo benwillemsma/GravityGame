@@ -12,6 +12,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private Vector3 mainOffset;
     private float aimOffset;
+    private float rotationOffset;
 
     private Player player;
     private float desiredZoom = 2;
@@ -39,6 +40,7 @@ public class ThirdPersonCamera : MonoBehaviour
         // Update Pseudo Camera
         cameraRotator.position = pivotPoint.position;
         cameraRotator.Rotate(Input.GetAxis("Mouse Y") * (player.InvertedCamera ? 1 : -1) * Time.deltaTime * player.CameraSensitivity, 0, 0);
+        rotationOffset += Input.GetAxis("Mouse X") * Time.deltaTime * player.CameraSensitivity; // NEVER USED
         cameraRotator.rotation = Quaternion.LookRotation
             (
                 ClampCameraForward(Vector3.ProjectOnPlane(cameraRotator.forward, player.transform.right)),

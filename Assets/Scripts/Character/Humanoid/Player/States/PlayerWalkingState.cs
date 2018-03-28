@@ -7,14 +7,15 @@ public class PlayerWalkingState : PlayerState<Player>
 {
     public PlayerWalkingState(Player player) : base(player) { }
     private Vector3 moveDirection;
-    private bool Crouched;
-    private bool Sprinting;
-    private bool Aiming;
+    private bool crouched;
+    private bool sprinting;
+    private bool aiming;
 
     public override IEnumerator EnterState(BaseState prevState)
     {
         gravityDirection = -rb.transform.up;
         gravityStrength = 9.8f;
+
         yield return base.EnterState(prevState);
     }
     public override IEnumerator ExitState(BaseState nextState)
@@ -22,41 +23,41 @@ public class PlayerWalkingState : PlayerState<Player>
         yield return base.ExitState(nextState);
     }
 
-    //State Updates
+    // State Updates
     protected override void UpdateState()
     {
         UpdateMovement();
         UpdateAnimator();
         UpdateIK();
-
-        if (!grounded && Input.GetButtonDown("GravChange")) ChangeGravity();
     }
 
     protected override void UpdateMovement()
     {
+        if (!grounded && Input.GetButtonDown("GravChange")) ChangeGravity();
 
         if (Input.GetButtonDown("Crouch"))
         {
             if (data.toggleCrouch)
-                Crouched = !Crouched;
+                crouched = !crouched;
             else
             {
-                Crouched = true;
-                Sprinting = false;
+                crouched = true;
+                sprinting = false;
             }
         }
         else if (Input.GetButtonUp("Crouch") && !data.toggleCrouch)
-            Crouched = false;
+            crouched = false;
 
-        Aiming = Input.GetButton("Aiming");
-        Sprinting = Input.GetButton("Sprint") && !Aiming;
-        if (Sprinting) Crouched = false;
+        aiming = Input.GetButton("Aiming");
+        sprinting = Input.GetButton("Sprint") && !aiming;
+        if (sprinting) crouched = false;
 
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         if (moveDirection.magnitude > 1) moveDirection = moveDirection.normalized;
-        if (Aiming) moveDirection /= 1.5f;
-        else if (Crouched) moveDirection /= 2;
-        else if (Sprinting) moveDirection *= 1.5f;
+
+        if (aiming) moveDirection /= 1.5f;
+        else if (crouched) moveDirection /= 2;
+        else if (sprinting) moveDirection *= 1.5f;
 
         UpdateRotation();
     }
@@ -66,37 +67,6 @@ public class PlayerWalkingState : PlayerState<Player>
         Quaternion desiredRotation = Quaternion.LookRotation(newForward, -gravityDirection);
         rb.transform.rotation = Quaternion.Slerp(rb.transform.rotation, desiredRotation, Time.deltaTime * 6);
         rb.transform.Rotate(rb.transform.up, Input.GetAxis("Mouse X") * Time.deltaTime * data.CameraSensitivity, Space.World);
-    }
-    
-    protected override void UpdateAnimator()
-    {
-        anim.SetBool("Crouching", Crouched);
-        anim.SetBool("Aiming", Aiming);
-        anim.SetFloat("MoveX", moveDirection.x);
-        anim.SetFloat("MoveY", moveDirection.z);
-        anim.SetFloat("Speed", moveDirection.magnitude);
-    }
-
-    protected override void UpdateIK()
-    {
-        if (data.EquipedGun)
-        {
-            if (Aiming) IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 1f, Time.deltaTime * 10); 
-            else IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 0, Time.deltaTime * 15);
-            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
-            IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
-
-            IK.LookWeight = IK.RightHand.weight;
-            IK.HeadWeight = IK.RightHand.weight / 2;
-
-            if (data.EquipedGun.SecondHand)
-            {
-                IK.LeftHand.weight = 1;
-                IK.LeftHand.position = data.EquipedGun.SecondHand.position;
-                IK.LeftHand.rotation = data.EquipedGun.SecondHand.rotation;
-            }
-            else IK.LeftHand.weight = 0;
-        }
     }
 
     protected override void UpdatePhysics()
@@ -116,16 +86,62 @@ public class PlayerWalkingState : PlayerState<Player>
         rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
     }
 
-    //Trigger Functions
-    public override void OnTriggerEnter(Collider collider) { }
-    public override void OnTriggerStay(Collider collider) { }
+    protected override void UpdateAnimator()
+    {
+        anim.SetBool("Crouching", crouched);
+        anim.SetBool("Aiming", aiming);
+        anim.SetFloat("MoveX", moveDirection.x);
+        anim.SetFloat("MoveY", moveDirection.z);
+        anim.SetFloat("Speed", moveDirection.magnitude);
+    }
+
+    protected override void UpdateIK()
+    {
+        if (data.EquipedGun)
+        {
+            if (aiming) IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 1f, Time.deltaTime * 10); 
+            else IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 0, Time.deltaTime * 15);
+            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
+            IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
+
+            IK.LookWeight = IK.RightHand.weight;
+            IK.HeadWeight = IK.RightHand.weight / 2;
+
+            if (data.EquipedGun.SecondHand)
+            {
+                IK.LeftHand.weight = 1;
+                IK.LeftHand.position = data.EquipedGun.SecondHand.position;
+                IK.LeftHand.rotation = data.EquipedGun.SecondHand.rotation;
+            }
+            else IK.LeftHand.weight = 0;
+        }
+    }
+
+    // Trigger Functions
+    public override void OnTriggerEnter(Collider collider)
+    {
+        if (crouched)
+        {
+            Cover coverObject = collider.gameObject.GetComponent<Cover>();
+            if (coverObject) stateManager.ChangeState(new PlayerCoverState(data, coverObject));
+        }
+    }
+    public override void OnTriggerStay(Collider collider)
+    {
+        if (Input.GetButtonDown("Crouch"))
+        {
+            Cover coverObject = collider.gameObject.GetComponent<Cover>();
+            if (coverObject) stateManager.ChangeState(new PlayerCoverState(data, coverObject));
+        }
+    }
     public override void OnTriggerExit(Collider collider) { }
 
-    //Colission Functions
+    // Colission Functions
     public override void OnCollisionEnter(Collision collision) { }
     public override void OnCollisionStay(Collision collision) { }
     public override void OnCollisionExit(Collision collision) { }
 
+    // State Functions
     private void Jump()
     {
         rb.velocity = Vector3.ProjectOnPlane(rb.velocity, rb.transform.up);

@@ -44,20 +44,22 @@ public class StateManager : MonoBehaviour
     protected IEnumerator HandleStateTransition(BaseState newState)
     {
         State.InTransition = true;
-        yield return StartCoroutine(State.ExitState(newState));
-        State.InTransition = false;
 
         RemoveTriggers(State);
         RemoveCollisions(State);
 
+        yield return StartCoroutine(State.ExitState(newState));
+        State.InTransition = false;
+
         BaseState prevState = State;
         State = newState;
 
-        SetTriggers(newState);
-        SetCollisions(newState);
-
         State.InTransition = true;
         yield return StartCoroutine(State.EnterState(prevState));
+
+        SetTriggers(State);
+        SetCollisions(State);
+
         State.InTransition = false;
 
         prevState = null;
@@ -102,28 +104,28 @@ public class StateManager : MonoBehaviour
     // Unity Trigger Functions Call Current State Tirgger Functions
     private void OnTriggerEnter(Collider other)
     {
-        triggerEnter.Invoke(other);
+        if(!m_isPaused && State != null && !State.InTransition) triggerEnter.Invoke(other);
     }
     private void OnTriggerStay(Collider other)
     {
-        triggerStay.Invoke(other);
+        if (!m_isPaused && State != null && !State.InTransition) triggerStay.Invoke(other);
     }
     private void OnTriggerExit(Collider other)
     {
-        triggerExit.Invoke(other);
+        if (!m_isPaused && State != null && !State.InTransition) triggerExit.Invoke(other);
     }
 
     // Unity Collision Functions Call Current State Collision Functions
     private void OnCollisionEnter(Collision collision)
     {
-        collisionExit.Invoke(collision);
+        if (!m_isPaused && State != null && !State.InTransition) collisionExit.Invoke(collision);
     }
     private void OnCollisionStay(Collision collision)
     {
-        collisionStay.Invoke(collision);
+        if (!m_isPaused && State != null && !State.InTransition) collisionStay.Invoke(collision);
     }
     private void OnCollisionExit(Collision collision)
     {
-        collisionExit.Invoke(collision);
+        if (!m_isPaused && State != null && !State.InTransition) collisionExit.Invoke(collision);
     }
 }

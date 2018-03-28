@@ -28,7 +28,7 @@ public abstract class BaseState
     {
         if (this != stateManager.State)
         {
-            Debug.LogWarning(stateManager.gameObject + "has a RogueState: " + this + "\t\tCurrent State:" + stateManager.State);
+            Debug.LogWarning(stateManager.gameObject + "has a RogueState: " + this + "\t\tCurrent State:" + stateManager.State, stateManager);
             stopState = true;
         }
         else

@@ -2026,7 +2026,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1820605546886962}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 2.5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4320204917674016}
@@ -3072,7 +3072,10 @@ MonoBehaviour:
   RunSpeed: 8
   JumpForce: 6
   AirControl: 7
-  toggleCrouch: 0
+  toggleCrouch: 1
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 256
   CameraSensitivity: 50
   CameraOffset: 0.75
   InvertedCamera: 0
@@ -3106,13 +3109,13 @@ CapsuleCollider:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1820605546886962}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: a396524ba73eec24fb90a7c28f781ebc, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
+  m_Radius: 0.3
+  m_Height: 1.8
   m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!137 &137257991075070182
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

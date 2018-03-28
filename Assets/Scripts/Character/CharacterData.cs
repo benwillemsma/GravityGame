@@ -52,7 +52,7 @@ public abstract class CharacterData : MonoBehaviour
     #endregion
 
     #region Health Info
-    [Space(10)]
+    [Header("Health Info")]
     [SerializeField]
     protected Transform respawnPoint;
     protected Vector3 m_startLocation;

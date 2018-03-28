@@ -20,7 +20,7 @@ public abstract class PlayerState<Data> : HumanoidState<Data> where Data : Playe
         Vector3 direction = -rb.transform.up;
 
         RaycastHit hit;
-        if (Physics.Raycast(start, direction, out hit, 1.5f))
+        if (Physics.Raycast(start, direction, out hit, 1.5f, ~data.groundMask))
         {
             if (hit.distance < 1.1f) grounded = true;
             gravityDirection = -hit.normal;
