@@ -8,10 +8,16 @@ ModelImporter:
     100000: //RootNode
     400000: //RootNode
     2100000: 01 - Default
+    2100002: 02 - Default
     2300000: //RootNode
     3300000: //RootNode
     4300000: Wall Barrier001
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 02 - Default
+    second: {fileID: 2100000, guid: e8ccfb7380ee3b844b68553821d6e8d7, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
