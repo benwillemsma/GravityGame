@@ -33,8 +33,6 @@ public class PlayerWalkingState : PlayerState<Player>
 
     protected override void UpdateMovement()
     {
-        if (!grounded && Input.GetButtonDown("GravChange")) ChangeGravity();
-
         if (Input.GetButtonDown("Crouch"))
         {
             if (data.toggleCrouch)
@@ -72,6 +70,8 @@ public class PlayerWalkingState : PlayerState<Player>
     protected override void UpdatePhysics()
     {
         GroundCheck();
+
+        if (Input.GetButtonDown("GravChange") && canChangeGravity) data.StartCoroutine(ChangeGravity());
         if (grounded)
         {
             rb.velocity = rb.transform.rotation * moveDirection;
@@ -150,8 +150,15 @@ public class PlayerWalkingState : PlayerState<Player>
         anim.SetTrigger("Jump");
     }
 
-    private void ChangeGravity()
+    private IEnumerator ChangeGravity()
     {
+        canChangeGravity = false;
+        if (grounded)
+        {
+            Jump();
+            yield return new WaitForSeconds(0.2f);
+        }
+
         Vector3 newGravity = gravityDirection;
         if (moveDirection.magnitude > 0.2f)
         {
@@ -176,6 +183,8 @@ public class PlayerWalkingState : PlayerState<Player>
             data.StartCoroutine(DampenVelocity(-gravityDirection, dampenForce, 0.5f));
             gravityDirection = newGravity;
         }
+        yield return new WaitForSeconds(0.2f);
+        canChangeGravity = true;
     }
 
     private IEnumerator DampenVelocity(Vector3 dampenDirection, float force, float duration)

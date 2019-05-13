@@ -9,6 +9,7 @@ public abstract class PlayerState<Data> : HumanoidState<Data> where Data : Playe
     protected Vector3 gravityDirection;
     protected float gravityStrength;
     protected bool grounded;
+    protected bool canChangeGravity = true;
 
     #endregion
 
@@ -20,10 +21,10 @@ public abstract class PlayerState<Data> : HumanoidState<Data> where Data : Playe
         Vector3 direction = -rb.transform.up;
 
         RaycastHit hit;
-        if (Physics.Raycast(start, direction, out hit, 1.5f, ~data.groundMask))
+        if (Physics.Raycast(start, direction, out hit, 1.25f, ~data.groundMask))
         {
-            if (hit.distance < 1.1f) grounded = true;
-            gravityDirection = -hit.normal;
+            if (hit.distance < 1.05f) grounded = true;
+            if (canChangeGravity) gravityDirection = -hit.normal;
             anim.SetBool("Grounded", true);
         }
         else
