@@ -18,7 +18,6 @@ public abstract class CharacterState<Data> : BaseState where Data : CharacterDat
     //State Updates
     protected override void UpdateState() { }
     protected override void UpdatePaused() { }
-    protected override void UpdateTransition() { }
 
     protected abstract void UpdateMovement();
     protected abstract void UpdateAnimator();

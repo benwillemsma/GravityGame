@@ -15,9 +15,16 @@ public abstract class PlayerState<Data> : HumanoidState<Data> where Data : Playe
 
     public PlayerState(Data playerData) : base(playerData) { }
 
+    protected override void UpdateState()
+    {
+        UpdateMovement();
+        UpdateAnimator();
+        UpdateIK();
+    }
+
     protected void GroundCheck()
     {
-        Vector3 start = rb.transform.position + rb.transform.up + rb.transform.forward * 0.2f;
+        Vector3 start = rb.transform.position + rb.transform.up;
         Vector3 direction = -rb.transform.up;
 
         RaycastHit hit;

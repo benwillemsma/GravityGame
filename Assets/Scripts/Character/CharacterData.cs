@@ -106,7 +106,6 @@ public abstract class CharacterData : MonoBehaviour
         m_isDead = true;
         yield return new WaitForSeconds(m_deathDelay);
         Destroy(transform.gameObject);
-        GameManager.Instance.Continue();
     }
 
     public void RespawnCharacter()

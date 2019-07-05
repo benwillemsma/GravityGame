@@ -12,9 +12,7 @@ public class GameManager : MonoBehaviour
     public static Player player;
 
     private string m_mainMenuScene = "MainMenu";
-    private string m_pauseMenuScene = "PauseMenu";
     private string m_playScene = "PlayScene";
-    private string m_hudScene = "HudScene";
 
     private static bool m_gameOver = false;
     public bool GameOver
@@ -31,6 +29,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Pause Functions
+    public Canvas pauseCanvas;
     public void OnApplicationFocus(bool focus)
     {
         if (this != Instance)
@@ -39,36 +38,27 @@ public class GameManager : MonoBehaviour
         if (SceneManager.GetActiveScene().buildIndex > 5)
         {
             if (!focus && !m_paused && !Application.isEditor)
-                AddScene(m_pauseMenuScene);
+                TogglePause(true);
         }
     }
 
     public void TogglePause()
     {
-        if (this != Instance)
-            return;
-
-        m_paused = !m_paused;
-        Time.timeScale = m_paused ? 0 : 1;
-        ToggleCursor(m_paused);
-        ToggleStateMachinesPause();
-
+        TogglePause(!m_paused);
     }
 
-    public void TogglePause(bool pause)
+    public void TogglePause(bool paused)
     {
-        if (this != Instance)
-            return;
-
-        m_paused = pause;
-        Time.timeScale = pause ? 0 : 1;
-        ToggleCursor(pause);
+        m_paused = paused;
+        Time.timeScale = paused ? 0 : 1;
+        pauseCanvas.gameObject.SetActive(paused);
+        ToggleCursor(paused);
         ToggleStateMachinesPause();
     }
 
-    public void ToggleCursor(bool value)
+    public void ToggleCursor(bool visible)
     {
-        if (value)
+        if (visible)
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
@@ -93,6 +83,7 @@ public class GameManager : MonoBehaviour
     #region Player Managment
     public GameObject playerPrefab;
     public static SpawnManager levelSpawn;
+
 
     private void SpawnPlayer()
     {
@@ -129,12 +120,6 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
 
-    public void Continue()
-    {
-        int sceneIndex = PlayerPrefs.GetInt("ContinueScene");
-        LoadScene(sceneIndex);
-    }
-
     public void LoadScene(string name)
     {
         SceneManager.LoadScene(name);
@@ -167,52 +152,23 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (this != Instance)
-            return;
-
-        if (scene.name == m_pauseMenuScene)
-            TogglePause();
-
-        else if (scene.name == m_hudScene)
-        {
-            ToggleCursor(m_paused);
-        }
-
-        else if (scene.name == m_mainMenuScene)
+        if (scene.name == m_mainMenuScene)
         {
             m_paused = false;
             ToggleCursor(true);
             Time.timeScale = 1;
-            if (player) Destroy(player.gameObject);
         }
 
         else if (scene.name == m_playScene)
         {
             if (!player) SpawnPlayer();
-
             ToggleCursor(false);
-
-            if (!SceneManager.GetSceneByName(m_hudScene).isLoaded)
-                SceneManager.LoadScene(m_hudScene, LoadSceneMode.Additive);
-        }
-
-        else
-        {
-            //Scene is LevelScene
-            string currentLevel = scene.name;
-            PlayerPrefs.SetString("ContinueScene", currentLevel);
         }
     }
-
-    private void OnSceneUnloaded(Scene scene)
-    {
-        if (scene.name == m_pauseMenuScene)
-            TogglePause();
-    }
+    private void OnSceneUnloaded(Scene scene) { }
     #endregion
 
     #region Main
-
     private void Awake()
     {
         if (!Instance)
@@ -229,13 +185,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (this != Instance)
-            return;
-
         if (Input.GetButtonDown("Pause") && SceneManager.GetActiveScene().name == m_playScene)
         {
-            if (m_paused) UnloadScene(m_pauseMenuScene);
-            else AddScene(m_pauseMenuScene);
+            TogglePause();
         }
     }
     #endregion

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Player : HumanoidData
 {
-    #region Public Variables
     [Header("Movement")]
     [Range(0, 10)]
     public float RunSpeed = 8;
@@ -23,56 +21,144 @@ public class Player : HumanoidData
     public float CameraOffset = 0.75f;
     public bool InvertedCamera;
 
-    [Header("Gun References (Don't Touch)")]
-    public Gun EquipedGun;
+    [Header("Hud References")]
+    public Canvas Hud;
+
+    [Header("Loadout References (Don't Touch)")]
+    public LoadoutData loadoutRef;
     public Transform GunPivot;
+    public Loadout loadout { get; private set; }
 
-    #endregion
+    public Action currentAction { get; private set; }
+    private bool doingAction;
 
-    #region Trigger Input
-    private InputAxis rightTriggerState = new InputAxis("RightTrigger", AxisType.Trigger);
-    private InputAxis leftTriggerState = new InputAxis("LeftTrigger", AxisType.Trigger);
-
-    public InputAxis RightTrigger
-    {
-        get { return rightTriggerState; }
-    }
-    public InputAxis LeftTrigger
-    {
-        get { return leftTriggerState; }
-    }
-    #endregion
-
-    #region Main
     protected override void Awake()
     {
         base.Awake();
         if (!GameManager.player)
-        {
             GameManager.player = this;
-            DontDestroyOnLoad(this);
-        }
         else
         {
             StopAllCoroutines();
-            DestroyImmediate(gameObject);
-        }
-
-        if (EquipedGun)
-        {
-            EquipedGun.transform.parent = Anim.GetBoneTransform(HumanBodyBones.RightHand);
-            EquipedGun.transform.localPosition = Vector3.zero;
+            Destroy(gameObject);
         }
     }
 
     private void Start ()
     {
+        InitLoadout(loadoutRef);
         m_stateM.State = new PlayerWalkingState(this);
-        StartCoroutine(m_stateM.State.EnterState(null));
+        m_stateM.State.EnterState(null);
     }
 
-    protected override void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    public void InitLoadout(LoadoutData loadoutRef)
     {
+        Loadout newLoadout = new Loadout();
+
+        if (loadoutRef.gun)
+        {
+            Gun gun = Instantiate(loadoutRef.gun);
+            Equip(gun, Anim.GetBoneTransform(HumanBodyBones.RightHand));
+            newLoadout.gun = gun;
+        }
+
+        if (loadoutRef.grenade)
+        {
+            Grenade grenade = Instantiate(loadoutRef.grenade);
+            Equip(grenade, Vector3.zero, Quaternion.identity);
+            newLoadout.grenade = grenade;
+        }
+
+        if (loadoutRef.gadget)
+        {
+            Gadget gadget = Instantiate(loadoutRef.gadget);
+            Equip(gadget, Vector3.zero, Quaternion.identity);
+            newLoadout.gadget = gadget;
+        }
+        loadout = newLoadout;
     }
-    #endregion
+    private void Equip(Equipable equipable,Transform transform)
+    {
+        equipable.transform.parent = transform;
+        equipable.transform.localPosition = Vector3.zero;
+        equipable.transform.localRotation = Quaternion.identity;
+        equipable.OnEquip(this);
+    }
+    private void Equip(Equipable equipable, Vector3 positionOffset, Quaternion rotationOffset)
+    {
+        equipable.transform.localPosition = positionOffset;
+        equipable.transform.localRotation = rotationOffset;
+        equipable.OnEquip(this);
+    }
+
+    public void ToggleHud()
+    {
+        Hud.gameObject.SetActive(!Hud.gameObject.activeSelf);
+    }
+    public void ToggleHud(bool visible)
+    {
+        Hud.gameObject.SetActive(visible);
+    }
+
+    // Actions
+    public void NewAction(Action action)
+    {
+        if(currentAction != null)
+        {
+            if (!currentAction.interruptable)
+                currentAction = action;
+        }
+        else
+        {
+            currentAction = action;
+            StartCoroutine(DoAction());
+        }
+    }
+
+    private IEnumerator DoAction()
+    {
+        doingAction = true;
+        while (currentAction != null && currentAction.routine.MoveNext())
+        {
+            yield return null;
+        }
+        doingAction = false;
+        currentAction = null;
+    }
+
+    public void StopAction()
+    {
+        currentAction = null;
+        doingAction = false;
+    }
+}
+
+public class Action
+{
+    public IEnumerator routine;
+    public bool interruptable;
+    public bool blockInput;
+    public bool controlMovement;
+
+    public Action(IEnumerator routine, bool interruptable, bool blockInput, bool controlMovement)
+    {
+        this.routine = routine;
+        this.interruptable = interruptable;
+        this.blockInput = blockInput;
+        this.controlMovement = controlMovement;
+    }
+}
+
+public struct Loadout
+{
+    public Gun gun;
+    public Gadget gadget;
+    public Grenade grenade;
+
+    public Loadout(Gun gun, Gadget gadget, Grenade grenade)
+    {
+        this.gun = gun;
+        this.gadget = gadget;
+        this.grenade = grenade;
+    }
 }

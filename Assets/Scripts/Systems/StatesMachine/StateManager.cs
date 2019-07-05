@@ -38,39 +38,34 @@ public class StateManager : MonoBehaviour
     //State Functions
     public void ChangeState(BaseState newState)
     {
-        StartCoroutine(HandleStateTransition(newState));
+        HandleStateTransition(newState);
         CurrentState = State.ToString();
     }
-    protected IEnumerator HandleStateTransition(BaseState newState)
+    protected void HandleStateTransition(BaseState newState)
     {
-        State.InTransition = true;
+        //Exit State
+        State.ExitState(newState);
 
         RemoveTriggers(State);
         RemoveCollisions(State);
 
-        yield return StartCoroutine(State.ExitState(newState));
-        State.InTransition = false;
-
+        //Set New State
         BaseState prevState = State;
         State = newState;
 
-        State.InTransition = true;
-        yield return StartCoroutine(State.EnterState(prevState));
+        //Enter State
+        SetTriggers(newState);
+        SetCollisions(newState);
 
-        SetTriggers(State);
-        SetCollisions(State);
-
-        State.InTransition = false;
+        State.EnterState(prevState);
 
         prevState = null;
     }
 
     // Trigger Delegates
-    delegate void TriggerDelegate(Collider collider);
     private TriggerDelegate triggerEnter;
     private TriggerDelegate triggerStay;
     private TriggerDelegate triggerExit;
-    delegate void CollisionDelegate(Collision collision);
     private CollisionDelegate collisionEnter;
     private CollisionDelegate collisionStay;
     private CollisionDelegate collisionExit;
@@ -104,28 +99,28 @@ public class StateManager : MonoBehaviour
     // Unity Trigger Functions Call Current State Tirgger Functions
     private void OnTriggerEnter(Collider other)
     {
-        if(!m_isPaused && State != null && !State.InTransition) triggerEnter.Invoke(other);
+        if(!m_isPaused && State != null) triggerEnter.Invoke(other);
     }
     private void OnTriggerStay(Collider other)
     {
-        if (!m_isPaused && State != null && !State.InTransition) triggerStay.Invoke(other);
+        if (!m_isPaused && State != null) triggerStay.Invoke(other);
     }
     private void OnTriggerExit(Collider other)
     {
-        if (!m_isPaused && State != null && !State.InTransition) triggerExit.Invoke(other);
+        if (!m_isPaused && State != null) triggerExit.Invoke(other);
     }
 
     // Unity Collision Functions Call Current State Collision Functions
     private void OnCollisionEnter(Collision collision)
     {
-        if (!m_isPaused && State != null && !State.InTransition) collisionExit.Invoke(collision);
+        if (!m_isPaused && State != null) collisionExit.Invoke(collision);
     }
     private void OnCollisionStay(Collision collision)
     {
-        if (!m_isPaused && State != null && !State.InTransition) collisionStay.Invoke(collision);
+        if (!m_isPaused && State != null) collisionStay.Invoke(collision);
     }
     private void OnCollisionExit(Collision collision)
     {
-        if (!m_isPaused && State != null && !State.InTransition) collisionExit.Invoke(collision);
+        if (!m_isPaused && State != null) collisionExit.Invoke(collision);
     }
 }

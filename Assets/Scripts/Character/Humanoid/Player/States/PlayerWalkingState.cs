@@ -11,53 +11,47 @@ public class PlayerWalkingState : PlayerState<Player>
     private bool sprinting;
     private bool aiming;
 
-    public override IEnumerator EnterState(BaseState prevState)
+    public override void EnterState(BaseState prevState)
     {
         gravityDirection = -rb.transform.up;
         gravityStrength = 9.8f;
-
-        yield return base.EnterState(prevState);
-    }
-    public override IEnumerator ExitState(BaseState nextState)
-    {
-        yield return base.ExitState(nextState);
+        base.EnterState(prevState);
     }
 
     // State Updates
-    protected override void UpdateState()
-    {
-        UpdateMovement();
-        UpdateAnimator();
-        UpdateIK();
-    }
-
     protected override void UpdateMovement()
     {
-        if (Input.GetButtonDown("Crouch"))
+        if (data.currentAction == null || !data.currentAction.controlMovement)
         {
-            if (data.toggleCrouch)
-                crouched = !crouched;
-            else
+            if (Input.GetButtonDown("Crouch"))
             {
-                crouched = true;
-                sprinting = false;
+                if (data.toggleCrouch)
+                    crouched = !crouched;
+                else
+                {
+                    crouched = true;
+                    sprinting = false;
+                }
             }
+            else if (Input.GetButtonUp("Crouch") && !data.toggleCrouch)
+                crouched = false;
+
+            aiming = Input.GetButton("Aiming");
+            sprinting = Input.GetButton("Sprint") && !aiming;
+            if (sprinting) crouched = false;
+
+            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            if (moveDirection.magnitude > 1) moveDirection = moveDirection.normalized;
+
+            if (aiming) moveDirection /= 1.5f;
+            else if (crouched) moveDirection /= 2;
+            else if (sprinting) moveDirection *= 1.5f;
+
+            UpdateRotation();
+
+            if (aiming && Input.GetButtonDown("Shoot"))
+                data.loadout.gun.Shoot();
         }
-        else if (Input.GetButtonUp("Crouch") && !data.toggleCrouch)
-            crouched = false;
-
-        aiming = Input.GetButton("Aiming");
-        sprinting = Input.GetButton("Sprint") && !aiming;
-        if (sprinting) crouched = false;
-
-        moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        if (moveDirection.magnitude > 1) moveDirection = moveDirection.normalized;
-
-        if (aiming) moveDirection /= 1.5f;
-        else if (crouched) moveDirection /= 2;
-        else if (sprinting) moveDirection *= 1.5f;
-
-        UpdateRotation();
     }
     private void UpdateRotation()
     {
@@ -69,21 +63,31 @@ public class PlayerWalkingState : PlayerState<Player>
 
     protected override void UpdatePhysics()
     {
-        GroundCheck();
+        if (data.currentAction == null || !data.currentAction.blockInput)
+        {
+            GroundCheck();
 
-        if (Input.GetButtonDown("GravChange") && canChangeGravity) data.StartCoroutine(ChangeGravity());
-        if (grounded)
-        {
-            rb.velocity = rb.transform.rotation * moveDirection;
-            rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection) * data.RunSpeed;
-            if (Input.GetButtonDown("Jump")) Jump();
+            bool InturuptAction = false;
+            if (Input.GetButtonDown("GravChange") && canChangeGravity)
+            {
+                InturuptAction = true;
+                data.StartCoroutine(ChangeGravity());
+            }
+            if (grounded)
+            {
+                rb.velocity = rb.transform.rotation * moveDirection;
+                rb.velocity = Vector3.ProjectOnPlane(rb.velocity, gravityDirection) * data.RunSpeed;
+                if (Input.GetButtonDown("Jump")) Jump();
+            }
+            else
+            {
+                if (Input.GetButtonDown("Jump")) InturuptAction = true;
+                anim.ResetTrigger("Jump");
+                rb.position += rb.transform.rotation * moveDirection * 0.01f * data.AirControl;
+            }
+            rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
+            if (InturuptAction) data.StopAction();
         }
-        else
-        {
-            anim.ResetTrigger("Jump");
-            rb.position += rb.transform.rotation * moveDirection * 0.01f * data.AirControl;
-        }
-        rb.AddForce(gravityDirection * gravityStrength * rb.mass * (grounded ? 20 : 1));
     }
 
     protected override void UpdateAnimator()
@@ -97,21 +101,21 @@ public class PlayerWalkingState : PlayerState<Player>
 
     protected override void UpdateIK()
     {
-        if (data.EquipedGun)
+        if (data.loadout.gun)
         {
             if (aiming) IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 1f, Time.deltaTime * 10); 
             else IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 0, Time.deltaTime * 15);
-            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
+            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.loadout.gun.gunOffset;
             IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
 
             IK.LookWeight = IK.RightHand.weight;
             IK.HeadWeight = IK.RightHand.weight / 2;
 
-            if (data.EquipedGun.SecondHand)
+            if (data.loadout.gun.secondHand)
             {
                 IK.LeftHand.weight = 1;
-                IK.LeftHand.position = data.EquipedGun.SecondHand.position;
-                IK.LeftHand.rotation = data.EquipedGun.SecondHand.rotation;
+                IK.LeftHand.position = data.loadout.gun.secondHand.position;
+                IK.LeftHand.rotation = data.loadout.gun.secondHand.rotation;
             }
             else IK.LeftHand.weight = 0;
         }
@@ -136,7 +140,7 @@ public class PlayerWalkingState : PlayerState<Player>
     }
     public override void OnTriggerExit(Collider collider) { }
 
-    // Colission Functions
+    // Collision Functions
     public override void OnCollisionEnter(Collision collision) { }
     public override void OnCollisionStay(Collision collision) { }
     public override void OnCollisionExit(Collision collision) { }

@@ -13,24 +13,21 @@ public class PlayerCoverState : PlayerState<Player>
     private bool facingRight = true;
     private bool aiming;
 
-    public override IEnumerator EnterState(BaseState prevState)
+    public override void EnterState(BaseState prevState)
     {
         anim.SetBool("InCover", true);
-        yield return base.EnterState(prevState);
+        base.EnterState(prevState);
     }
-    public override IEnumerator ExitState(BaseState nextState)
+    public override void ExitState(BaseState nextState)
     {
-        yield return base.ExitState(nextState);
         anim.SetBool("InCover", false);
+        base.ExitState(nextState);
     }
 
     //State Updates
     protected override void UpdateState()
     {
-        UpdateMovement();
-        UpdateAnimator();
-        UpdateIK();
-
+        base.UpdateState();
         if (!grounded || Input.GetButtonDown("Crouch"))
             stateManager.ChangeState(new PlayerWalkingState(data));
     }
@@ -75,21 +72,21 @@ public class PlayerCoverState : PlayerState<Player>
 
     protected override void UpdateIK()
     {
-        if (data.EquipedGun)
+        if (data.loadout.gun)
         {
             if (aiming) IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 1f, Time.deltaTime * 10); 
             else IK.RightHand.weight = Mathf.Lerp(IK.RightHand.weight, 0, Time.deltaTime * 15);
-            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.EquipedGun.GunOffset;
+            IK.RightHand.position = data.GunPivot.position + IK.mainCamera.rotation * data.loadout.gun.gunOffset;
             IK.RightHand.rotation = Quaternion.LookRotation(IK.mainCamera.forward, IK.mainCamera.right);
 
             IK.LookWeight = IK.RightHand.weight;
             IK.HeadWeight = IK.RightHand.weight / 2;
 
-            if (data.EquipedGun.SecondHand)
+            if (data.loadout.gun.secondHand)
             {
                 IK.LeftHand.weight = 1;
-                IK.LeftHand.position = data.EquipedGun.SecondHand.position;
-                IK.LeftHand.rotation = data.EquipedGun.SecondHand.rotation;
+                IK.LeftHand.position = data.loadout.gun.secondHand.position;
+                IK.LeftHand.rotation = data.loadout.gun.secondHand.rotation;
             }
             else IK.LeftHand.weight = 0;
         }

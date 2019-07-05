@@ -9,12 +9,6 @@ public abstract class BaseState
     protected bool stopState = false;
 
     protected float elapsedTime;
-    protected bool inTransition = false;
-    public bool InTransition
-    {
-        get {return inTransition; }
-        set {inTransition = value; }
-    }
 
     //Constructor
     public BaseState(StateManager stateM)
@@ -24,23 +18,18 @@ public abstract class BaseState
     }
 
     //Transition Functions
-    public virtual IEnumerator EnterState(BaseState prevState)
+    public virtual void EnterState(BaseState prevState)
     {
         if (this != stateManager.State)
         {
             Debug.LogWarning(stateManager.gameObject + "has a RogueState: " + this + "\t\tCurrent State:" + stateManager.State, stateManager);
             stopState = true;
         }
-        else
-        {
-            hasStarted = true;
-            yield return null;
-        }
+        else hasStarted = true;
     }
-    public virtual IEnumerator ExitState(BaseState nextState)
+    public virtual void ExitState(BaseState nextState)
     {
         stopState = true;
-        yield return null;
     }
 
     //State Updates
@@ -48,10 +37,6 @@ public abstract class BaseState
     {
         if (stateManager.IsPaused)
             UpdatePaused();
-
-        else if (inTransition)
-            UpdateTransition();
-
         else UpdateState();
 
         elapsedTime += Time.deltaTime;
@@ -66,7 +51,6 @@ public abstract class BaseState
     protected abstract void UpdatePhysics();
     protected abstract void UpdateState();
     protected abstract void UpdatePaused();
-    protected abstract void UpdateTransition();
 
     //Trigger Functions
     public abstract void OnTriggerEnter(Collider collider);
